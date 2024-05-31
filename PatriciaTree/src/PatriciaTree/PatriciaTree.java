@@ -1,66 +1,18 @@
 package PatriciaTree;
 
+import PatriciaTree.ED.Elemento;
+import PatriciaTree.ED.Fila.Fila;
+import PatriciaTree.ED.Pilha.Pilha;
+import PatriciaTree.No.No;
+import PatriciaTree.No.NoFolha;
+import PatriciaTree.No.NoLig;
+
 public class PatriciaTree {
 
-    private No raiz;
-
-//    public void insere(String palavra){
-//        inserePalavra(raiz, palavra);
-//    }
-//
-//    private void inserePalavra(No raiz, String p){
-//        String palavra = p.toLowerCase();
-//        No novoNo = new No(palavra);
-//
-//        if (raiz == null){
-//            inicializarRaiz(novoNo);
-//        }
-//        else{
-//            No intermediario = new No();
-//            int posInicio = raiz.buscarLetra(palavra.charAt(raiz.getIndex() - 1));
-//
-//            //Caso ainda nao exista a letra na raiz
-//            if (posInicio == -1){
-//                raiz.inserirNovaLetra(palavra.charAt(raiz.getIndex() - 1), novoNo);
-//            }
-//
-//            //Caso exista a letra na raiz
-//            else {
-//                No atual = raiz.getLig(posInicio);
-//
-//                if (atual.getPalavra() != null && atual.getTL() == 0) {
-//
-//                    repartePalavra(raiz, novoNo, posInicio);
-//                }
-//                else {
-//                    if (StringAux.charDiferenteIndex(palavra, atual.getLig(0).getPalavra()) < raiz.getIndex() - 1) {
-//                        intermediario.setPalavra(palavra);
-//                        intermediario.setIndex(StringAux.charDiferenteIndex(palavra, atual.getLig(0).getPalavra()));
-//                        intermediario.inserirNovaLetra(
-//                                palavra.charAt(StringAux.charDiferenteIndex(palavra,
-//                                        atual.getLig(0).getPalavra())), atual);
-//                    }
-//
-//                    if (palavra.length() < atual.getIndex()) {
-//
-//                        intermediario.inserirNovaLetra(palavra.charAt(palavra.length() - 1), atual);
-//                        intermediario.setIndex(palavra.length());
-//
-//                        atual.setPalavra(palavra);
-//
-//                        raiz.setLig(posInicio, intermediario);
-//                        intermediario.setLig(intermediario.buscarLetra(palavra.charAt(palavra.length() - 1)), atual);
-//                    } else {
-//                        inserePalavra(atual, palavra);
-//                    }
-//              }
-//            }
-//        }
-//
-//    }
+    private NoLig raiz;
 
     public void insere(String palavra){
-        No novoNo = new No(palavra);
+        No novoNo = new NoFolha(palavra);
         No ant, atual;
 
         if(raiz == null){
@@ -73,65 +25,67 @@ public class PatriciaTree {
             }
 
             else{
-                No intermediario = new No();
+                NoLig intermediario = new NoLig();
                 boolean inseriu = false;
                 int i = 1, posLetra = posPrimeiraLetra;
                 ant = raiz;
-                atual = ant.getLig(posPrimeiraLetra);
-                while (atual.getLig(0) != null && atual.getIndex() <= palavra.length() && !inseriu){
-                    if(atual.getIndex() == i){
-                        posLetra = atual.buscarLetra(palavra.charAt(i-1));
+                atual = ((NoLig) ant).getLig(posPrimeiraLetra);
+                while (!atual.isFolha() && ((NoLig) atual).getIndex() <= palavra.length() && !inseriu){
+                    if(((NoLig) atual).getIndex() == i){
+                        posLetra =  ((NoLig) atual).buscarLetra(palavra.charAt(i-1));
                         if(posLetra == -1){
-                            atual.inserirNovaLetra(palavra.charAt(i-1), novoNo);
+                            ((NoLig) atual).inserirNovaLetra(palavra.charAt(i-1), novoNo);
                             inseriu = true;
                         }
                         else{
                             ant = atual;
-                            atual = atual.getLig(posLetra);
+                            atual =  ((NoLig) atual).getLig(posLetra);
                             i++;
                         }
                     }
                     else{
-                        String filhoParaComparar = acharFilhoParaComparar(atual, palavra, atual.getIndex()-1);
+                        String filhoParaComparar = acharFilhoParaComparar(atual, palavra,
+                                ((NoLig) atual).getIndex()-1);
                         int diferenca = StringAux.charDiferenteIndex(filhoParaComparar, palavra);
-                        if(diferenca < atual.getIndex()-1){
+                        if(diferenca <  ((NoLig) atual).getIndex()-1){
                             intermediario.setIndex(diferenca+1);
                             intermediario.inserirNovaLetra(filhoParaComparar.charAt(diferenca), atual);
                             intermediario.inserirNovaLetra(palavra.charAt(diferenca), novoNo);
-                            ant.setLig(posLetra, intermediario);
+                            ((NoLig) ant).setLig(posLetra, intermediario);
                             inseriu = true;
                         }
-                        else if(diferenca >= atual.getIndex()-1){
-                            posLetra = atual.buscarLetra(palavra.charAt(atual.getIndex()-1));
+                        else if(diferenca >= ((NoLig) atual).getIndex()-1){
+                            posLetra = ((NoLig) atual).buscarLetra(palavra.charAt(((NoLig) atual).getIndex()-1));
                             if(posLetra == -1){
-                                atual.inserirNovaLetra(palavra.charAt(atual.getIndex()-1), novoNo);
+                                ((NoLig) atual).inserirNovaLetra(palavra.charAt(((NoLig) atual).getIndex()-1), novoNo);
                                 inseriu = true;
                             }
                             else{
-                                if(atual.getLig(0) == null){
-                                    repartePalavra(atual, novoNo, posLetra);
+                                if(((NoLig) atual).getLig(0) == null){
+                                    repartePalavra(((NoLig) atual), novoNo, posLetra);
                                     inseriu = true;
                                 }
                                 else{
                                     ant = atual;
-                                    atual = atual.getLig(posLetra);
+                                    atual = ((NoLig) atual).getLig(posLetra);
                                 }
                             }
                         }
                     }
                 }
-                if(atual.getLig(0) == null && !inseriu){
-                    repartePalavra(ant, novoNo, ant.buscarLetra(palavra.charAt(ant.getIndex()-1)));
+                if(atual.isFolha() && !inseriu){
+                    repartePalavra(((NoLig) ant), novoNo,
+                            ((NoLig) ant).buscarLetra(palavra.charAt(((NoLig) ant).getIndex()-1)));
                 }
-                else if(atual.getIndex() > palavra.length() && !inseriu){
+                else if(((NoLig) atual).getIndex() > palavra.length() && !inseriu){
                     intermediario.inserirNovaLetra(palavra.charAt(palavra.length() - 1), atual);
                     intermediario.setIndex(palavra.length());
 
                     atual.setPalavra(palavra);
 
-                    int posInicio = ant.buscarLetra(palavra.charAt(ant.getIndex() - 1));
-                    ant.setLig(posInicio, intermediario);
-                    intermediario.setLig(intermediario.buscarLetra(palavra.charAt(palavra.length() - 1)), atual);
+                    int posInicio =  ((NoLig) ant).buscarLetra(palavra.charAt(((NoLig) ant).getIndex() - 1));
+                    ((NoLig) ant).setLig(posInicio, intermediario);
+                    intermediario.setLig(  intermediario.buscarLetra(palavra.charAt(palavra.length() - 1)), atual);
                 }
 
             }
@@ -139,24 +93,24 @@ public class PatriciaTree {
     }
 
     private String acharFilhoParaComparar(No raiz, String palavra, int index){
-        if(index < palavra.length()){
+        if(index < palavra.length() && !raiz.isFolha()){
             char base = palavra.charAt(index);
-            while (raiz.getLig(0) != null && raiz.buscarLetra(base) >= 0 && index < palavra.length()){
-                raiz = raiz.getLig(raiz.buscarLetra(base));
+            while (!raiz.isFolha() && ((NoLig) raiz).buscarLetra(base) >= 0 && index < palavra.length()){
+                raiz = ((NoLig) raiz).getLig(((NoLig) raiz).buscarLetra(base));
                 base = palavra.charAt(index);
                 index++;
             }
         }
-        while(raiz.getLig(0) != null){
-            raiz = raiz.getLig(0);
+        while(!raiz.isFolha()){
+            raiz = ((NoLig) raiz).getLig(0);
         }
         return raiz.getPalavra();
     }
 
-    private void repartePalavra(No raiz, No novo, int pos){
+    private void repartePalavra(NoLig raiz, No novo, int pos){
         No atual = raiz.getLig(pos);
         int posDiferente = StringAux.charDiferenteIndex(novo.getPalavra(), atual.getPalavra());
-        No intermediario = new No();
+        NoLig intermediario = new NoLig();
 
         if(posDiferente == novo.getPalavra().length()){
             intermediario.setPalavra(novo.getPalavra());
@@ -175,11 +129,112 @@ public class PatriciaTree {
     }
 
     private void inicializarRaiz(No novoNo){
-        raiz = new No();
+        raiz = new NoLig();
         raiz.setIndex(1);
         raiz.setLetra(0, novoNo.getPalavra().charAt(0));
         raiz.setLig(0, novoNo);
         raiz.setTL(1);
+    }
+
+    public boolean buscarPalavra(String palavra){
+        No aux = raiz;
+        boolean achou = false;
+        boolean naoAchou = false;
+        while(!aux.isFolha() && !achou && !naoAchou){
+            if(aux.getPalavra() != null && aux.getPalavra().compareTo(palavra) == 0){
+                achou = true;
+            }
+            else{
+                if(((NoLig)aux).getIndex() > palavra.length()){
+                    naoAchou = true;
+                }
+                else{
+                    int pos = ((NoLig)aux).buscarLetra(palavra.charAt((((NoLig)aux).getIndex()-1)));
+                    if(pos == -1){
+                        naoAchou = true;
+                    }
+                    else{
+                        aux = ((NoLig) aux).getLig(pos);
+                    }
+                }
+            }
+        }
+        if(aux.isFolha()){
+            return aux.getPalavra().compareTo(palavra) == 0;
+        }
+        else{
+            return achou;
+        }
+    }
+
+    public void exibirIterativo(){
+        No aux;
+        Pilha pilha = new Pilha();
+        pilha.push(raiz);
+        while(!pilha.isEmpty()){
+            aux = pilha.pop();
+            if(aux.getPalavra() != null){
+                System.out.println(aux.getPalavra());
+            }
+            if(!aux.isFolha()){
+                //De trás para frente para ficar em ordem alfabética
+                for(int i = ((NoLig) aux).getTL() - 1; i >= 0; i--){
+                    pilha.push(((NoLig) aux).getLig(i));
+                }
+            }
+        }
+    }
+
+    public void exibirNivelANivel(){
+        Elemento aux;
+        int nivelAtual = 0;
+        Fila fila = new Fila();
+        fila.enqueue(raiz, 1);
+
+        while (!fila.isEmpty()){
+            aux = fila.dequeue();
+            if(aux.getNivel() != nivelAtual){
+                nivelAtual = aux.getNivel();
+                System.out.print("\n\nNivel " + nivelAtual + ": \n");
+            }
+            System.out.print("<-- ");
+            if(aux.getNo().isFolha()){
+                System.out.print("Folha: " + aux.getNo().getPalavra() + " ");
+            }
+            else{
+                NoLig auxlig = (NoLig) aux.getNo();
+                System.out.print("Indice: "+auxlig.getIndex());
+                for (int i = 0; i < auxlig.getTL(); i++){
+                    System.out.print(" | Letra: " + auxlig.getLetra(i));
+                    fila.enqueue(auxlig.getLig(i), nivelAtual + 1);
+                }
+                if(auxlig.getPalavra() != null){
+                    System.out.print(" | Palavra: " + auxlig.getPalavra());
+                }
+            }
+            System.out.print(" -->\t");
+        }
+        System.out.println();
+    }
+
+
+    public void exibirR(){
+        exibirRecursivo(raiz);
+    }
+
+    private void exibirRecursivo(No raiz){
+        if(raiz.isFolha()){
+            System.out.println(raiz.getPalavra());
+        }
+        else{
+            NoLig aux = (NoLig) raiz;
+            if(aux.getPalavra() != null){
+                System.out.println(aux.getPalavra());
+            }
+            for(int i = aux.getTL(); i >= 0; i--){
+                exibirRecursivo(((NoLig) raiz).getLig(i));
+            }
+        }
     }
 
 }

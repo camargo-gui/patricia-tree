@@ -1,23 +1,23 @@
-package PatriciaTree;
+package PatriciaTree.No;
 
-public class No {
-    private String palavra;
+import PatriciaTree.No.No;
+
+public class NoLig extends No {
     private char [] vLetra;
     private No [] vLig;
     private int index;
     private int TL;
 
-    public No(){
+    public NoLig(){
+        super();
         TL = 0;
         vLig = new No[26];
         vLetra = new char[26];
-        palavra = null;
     }
 
-    public No(String palavra){
-        this();
-        this.palavra = palavra;
-        index = 0;
+    @Override
+    public boolean isFolha() {
+        return false;
     }
 
     public int buscarLetra(char letra){
@@ -44,15 +44,6 @@ public class No {
         vLig[i + 1] = lig;
 
         TL++;
-    }
-
-
-    public String getPalavra() {
-        return palavra;
-    }
-
-    public void setPalavra(String palavra) {
-        this.palavra = palavra;
     }
 
     public char getLetra(int i) {
