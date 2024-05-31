@@ -31,23 +31,24 @@ public class PatriciaTree {
                 ant = raiz;
                 atual = ((NoLig) ant).getLig(posPrimeiraLetra);
                 while (!atual.isFolha() && ((NoLig) atual).getIndex() <= palavra.length() && !inseriu){
-                    if(((NoLig) atual).getIndex() == i){
-                        posLetra =  ((NoLig) atual).buscarLetra(palavra.charAt(i-1));
+                    NoLig ligAtual = (NoLig) atual;
+                    if(ligAtual.getIndex() == i){
+                        posLetra =  ligAtual.buscarLetra(palavra.charAt(i-1));
                         if(posLetra == -1){
-                            ((NoLig) atual).inserirNovaLetra(palavra.charAt(i-1), novoNo);
+                            ligAtual.inserirNovaLetra(palavra.charAt(i-1), novoNo);
                             inseriu = true;
                         }
                         else{
                             ant = atual;
-                            atual =  ((NoLig) atual).getLig(posLetra);
+                            atual =  ligAtual.getLig(posLetra);
                             i++;
                         }
                     }
                     else{
                         String filhoParaComparar = acharFilhoParaComparar(atual, palavra,
-                                ((NoLig) atual).getIndex()-1);
+                                ligAtual.getIndex()-1);
                         int diferenca = StringAux.charDiferenteIndex(filhoParaComparar, palavra);
-                        if(diferenca <  ((NoLig) atual).getIndex()-1){
+                        if(diferenca <  ligAtual.getIndex()-1){
                             intermediario.setIndex(diferenca+1);
                             intermediario.inserirNovaLetra(filhoParaComparar.charAt(diferenca), atual);
                             intermediario.inserirNovaLetra(palavra.charAt(diferenca), novoNo);
@@ -55,19 +56,19 @@ public class PatriciaTree {
                             inseriu = true;
                         }
                         else if(diferenca >= ((NoLig) atual).getIndex()-1){
-                            posLetra = ((NoLig) atual).buscarLetra(palavra.charAt(((NoLig) atual).getIndex()-1));
+                            posLetra = ligAtual.buscarLetra(palavra.charAt(ligAtual.getIndex()-1));
                             if(posLetra == -1){
-                                ((NoLig) atual).inserirNovaLetra(palavra.charAt(((NoLig) atual).getIndex()-1), novoNo);
+                                ligAtual.inserirNovaLetra(palavra.charAt(ligAtual.getIndex()-1), novoNo);
                                 inseriu = true;
                             }
                             else{
-                                if(((NoLig) atual).getLig(0) == null){
-                                    repartePalavra(((NoLig) atual), novoNo, posLetra);
+                                if(ligAtual.getLig(0) == null){
+                                    repartePalavra(ligAtual, novoNo, posLetra);
                                     inseriu = true;
                                 }
                                 else{
                                     ant = atual;
-                                    atual = ((NoLig) atual).getLig(posLetra);
+                                    atual = ligAtual.getLig(posLetra);
                                 }
                             }
                         }
@@ -177,7 +178,6 @@ public class PatriciaTree {
                 System.out.println(aux.getPalavra());
             }
             if(!aux.isFolha()){
-                //De trás para frente para ficar em ordem alfabética
                 for(int i = ((NoLig) aux).getTL() - 1; i >= 0; i--){
                     pilha.push(((NoLig) aux).getLig(i));
                 }
